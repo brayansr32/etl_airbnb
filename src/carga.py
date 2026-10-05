@@ -1,26 +1,12 @@
 import pandas as pd
 import sqlite3
-import logging
-import os
-from datetime import datetime
+from logger_config import get_logger
 
 class Carga:
     """Clase para insertar datos transformados en SQLite y exportarlos a XLSX."""
     def __init__(self, db_name="airbnb_analitica.db"):
         self.db_path = f"../{db_name}"
-        self.configurar_logs()
-
-    def configurar_logs(self):
-        """Configura el registro de logs para el proceso de carga."""
-        os.makedirs("../logs", exist_ok=True)
-        log_filename = f"../logs/log_{datetime.now().strftime('%Y%m%d_%H%M')}.txt"
-        
-        logging.basicConfig(
-            level=logging.INFO,
-            format='%(asctime)s - %(levelname)s - %(message)s',
-            handlers=[logging.FileHandler(log_filename), logging.StreamHandler()]
-        )
-        self.logger = logging.getLogger(__name__)
+        self.logger = get_logger(__name__)
 
     def cargar_sqlite(self, df, nombre_tabla):
         """Inserta el DataFrame en la base de datos SQLite y verifica la carga."""

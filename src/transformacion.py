@@ -1,29 +1,15 @@
 import pandas as pd
-import logging
-import os
-from datetime import datetime
+from logger_config import get_logger
 
 class Transformacion:
     """
     Clase encargada de limpiar y transformar los DataFrames extraídos.
     """
     def __init__(self):
-        self.configurar_logs()
+        self.logger = get_logger(__name__)
 
-    def configurar_logs(self):
-        """Configura el sistema de logs para registrar las transformaciones."""
-        os.makedirs("../logs", exist_ok=True)
-        log_filename = f"../logs/log_{datetime.now().strftime('%Y%m%d_%H%M')}.txt"
-        
-        logging.basicConfig(
-            level=logging.INFO,
-            format='%(asctime)s - %(levelname)s - %(message)s',
-            handlers=[logging.FileHandler(log_filename), logging.StreamHandler()]
-        )
-        self.logger = logging.getLogger(__name__)
-
-    def limpiar_nulos_duplicados(self, df, nombre_df):
-        """Elimina duplicados y valores completamente nulos."""
+    def limpiar_nulos_duplicados(self, df, nombre_df, columnas_criticas=None):
+        """Elimina duplicados y valores completamente nulos. Opcionalmente elimina nulos en columnas críticas."""
         if df is None or df.empty:
             self.logger.warning(f"El DataFrame {nombre_df} está vacío o es nulo.")
             return df
@@ -35,6 +21,13 @@ class Transformacion:
         
         # Eliminar filas donde todas las columnas sean nulas
         df = df.dropna(how='all')
+        
+        # Si hay columnas donde NO pueden haber nulos, se eliminan esas filas
+        if columnas_criticas:
+            # Filtramos para que solo use las columnas que de verdad existen en el DataFrame
+            cols_validas = [col for col in columnas_criticas if col in df.columns]
+            if cols_validas:
+                df = df.dropna(subset=cols_validas)
         
         registros_despues = len(df)
         self.logger.info(f"[{nombre_df}] Limpieza finalizada: de {registros_antes} a {registros_despues} registros.")
@@ -97,20 +90,20 @@ class Transformacion:
         
         # Transformaciones para LISTINGS
         self.logger.info("Transformando LISTINGS...")
-        df_listings = self.limpiar_nulos_duplicados(df_listings, "Listings")
+        df_listings = self.limpiar_nulos_duplicados(df_listings, "Listings", columnas_criticas=['price'])
         df_listings = self.normalizar_precios(df_listings, 'price')
         df_listings = self.categorizar_precios(df_listings, 'price') 
         df_listings = self.desanidar_campos(df_listings, 'amenities')
 
         # Transformaciones para CALENDAR
         self.logger.info("Transformando CALENDAR...")
-        df_calendar = self.limpiar_nulos_duplicados(df_calendar, "Calendar")
+        df_calendar = self.limpiar_nulos_duplicados(df_calendar, "Calendar", columnas_criticas=['date', 'price'])
         df_calendar = self.normalizar_precios(df_calendar, 'price')
         df_calendar = self.transformar_fechas(df_calendar, 'date')
 
         # Transformaciones para REVIEWS
         self.logger.info("Transformando REVIEWS...")
-        df_reviews = self.limpiar_nulos_duplicados(df_reviews, "Reviews")
+        df_reviews = self.limpiar_nulos_duplicados(df_reviews, "Reviews", columnas_criticas=['date'])
         df_reviews = self.transformar_fechas(df_reviews, 'date')
         
         self.logger.info("--- TRANSFORMACIÓN FINALIZADA CON ÉXITO ---")

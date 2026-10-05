@@ -1,8 +1,6 @@
 import pymongo
 import pandas as pd
-import logging
-import os
-from datetime import datetime
+from logger_config import get_logger
 
 class Extraccion:
     def __init__(self, db_name="Airbnb", host="localhost", port=27017):
@@ -12,15 +10,7 @@ class Extraccion:
         self.client = None
         self.db = None
         
-        # Configuración inicial del log  
-        os.makedirs("../logs", exist_ok=True)
-        log_filename = f"../logs/log_{datetime.now().strftime('%Y%m%d_%H%M')}.txt"
-        logging.basicConfig(
-            level=logging.INFO,
-            format='%(asctime)s - %(levelname)s - %(message)s',
-            handlers=[logging.FileHandler(log_filename), logging.StreamHandler()]
-        )
-        self.logger = logging.getLogger(__name__)
+        self.logger = get_logger(__name__)
 
     # Requisito 1: establecer conexión con la base de datos
     def conectar(self):
