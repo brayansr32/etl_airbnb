@@ -1,0 +1,27 @@
+# Entorno virtual
+.venv/
+venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# Resultados generados por el ETL (se regeneran ejecutando el proyecto)
+output/
+
+# Logs: se genera uno por ejecución. Para el informe se puede añadir un ejemplo con: git add -f logs/<archivo>.txt
+logs/*
+!logs/.gitkeep
+
+# Datos fuente (pesados, se descargan de Inside Airbnb)
+data/
+*.csv
+*.csv.gz
+
+# IDE / sistema operativo
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

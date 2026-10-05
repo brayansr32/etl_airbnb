@@ -1,0 +1,57 @@
+2026-10-05 09:01:52 - INFO - [etl.main] === INICIO DEL PROCESO ETL AIRBNB BOGOTÁ ===
+2026-10-05 09:01:52 - INFO - [etl.extraccion] Conexión exitosa a MongoDB (localhost:27017), base de datos 'Airbnb'.
+2026-10-05 09:01:53 - INFO - [etl.extraccion] Extracción exitosa: 19187 registros y 78 columnas extraídos de la colección 'Listings'.
+2026-10-05 09:02:00 - INFO - [etl.extraccion] Extracción exitosa: 527731 registros y 6 columnas extraídos de la colección 'Reviews'.
+2026-10-05 09:02:47 - INFO - [etl.extraccion] Extracción exitosa: 7003255 registros y 5 columnas extraídos de la colección 'Calendar'.
+2026-10-05 09:02:47 - INFO - [etl.transformacion] --- INICIANDO PROCESO DE TRANSFORMACIÓN ---
+2026-10-05 09:02:47 - INFO - [etl.transformacion] Transformando LISTINGS...
+2026-10-05 09:02:48 - WARNING - [etl.transformacion] [Listings] Columnas 100% vacías eliminadas: ['host_verifications']
+2026-10-05 09:02:48 - INFO - [etl.transformacion] Columna de precio 'price' normalizada a numérico correctamente.
+2026-10-05 09:02:48 - INFO - [etl.transformacion] [Listings] Limpieza de nulos/duplicados: de 19187 a 18992 registros (duplicados: 0, filas vacías: 0, nulos en columnas críticas: 195).
+2026-10-05 09:02:48 - INFO - [etl.transformacion] [Listings] Todos los precios de 'price' son válidos (> 0).
+2026-10-05 09:02:48 - INFO - [etl.transformacion] Atípicos en 'price': 1410 registros fuera de [-70,519.56, 410,865.94] (marcados en 'precio_atipico', no eliminados).
+2026-10-05 09:02:48 - INFO - [etl.transformacion] Atípicos en 'minimum_nights': 3969 registros fuera de [-2.00, 6.00] (marcados en 'minimo_noches_atipico', no eliminados).
+2026-10-05 09:02:48 - INFO - [etl.transformacion] Bandera 'estadia_larga' creada: 3336 anuncios con minimum_nights >= 28.
+2026-10-05 09:02:48 - WARNING - [etl.transformacion] [Listings] 'maximum_nights': 6 valores por encima de 1125 limitados a 1125.
+2026-10-05 09:02:48 - WARNING - [etl.transformacion] [Listings] 'minimum_maximum_nights': 4 valores por encima de 1125 limitados a 1125.
+2026-10-05 09:02:48 - WARNING - [etl.transformacion] [Listings] 'maximum_maximum_nights': 6 valores por encima de 1125 limitados a 1125.
+2026-10-05 09:02:48 - WARNING - [etl.transformacion] [Listings] 'maximum_nights_avg_ntm': 6 valores por encima de 1125 limitados a 1125.
+2026-10-05 09:02:48 - INFO - [etl.transformacion] Precios categorizados por cuartiles en 'rango_precio'. Cortes: [19181.11, 110000.0, 161460.0, 230346.38, 448176567.0]
+2026-10-05 09:02:48 - INFO - [etl.transformacion] Campo anidado 'amenities' desanidado a texto y columna 'cantidad_amenities' creada.
+2026-10-05 09:02:48 - INFO - [etl.transformacion] Amenidades clave expandidas a columnas: ['tiene_wifi', 'tiene_cocina', 'tiene_aire_acondicionado', 'tiene_estacionamiento', 'tiene_lavadora', 'tiene_piscina'].
+2026-10-05 09:02:48 - INFO - [etl.transformacion] Campo anidado 'price_quote_raw' desanidado: columnas creadas ['moneda']; original eliminada.
+2026-10-05 09:02:48 - INFO - [etl.transformacion] Columna 'banos' (numérica) derivada de 'bathrooms_text'.
+2026-10-05 09:02:49 - INFO - [etl.transformacion] Columnas t/f convertidas a 1/0: ['host_is_superhost', 'host_has_profile_pic', 'host_identity_verified', 'has_availability']
+2026-10-05 09:02:49 - INFO - [etl.transformacion] Fechas de 'first_review' estandarizadas a YYYY-MM-DD.
+2026-10-05 09:02:49 - INFO - [etl.transformacion] Fechas de 'last_review' estandarizadas a YYYY-MM-DD.
+2026-10-05 09:02:49 - INFO - [etl.transformacion] Fechas de 'last_scraped' estandarizadas a YYYY-MM-DD.
+2026-10-05 09:02:49 - INFO - [etl.transformacion] Fechas de 'calendar_last_scraped' estandarizadas a YYYY-MM-DD.
+2026-10-05 09:02:49 - INFO - [etl.transformacion] Fechas de 'price_quote_checkin_date' estandarizadas a YYYY-MM-DD.
+2026-10-05 09:02:49 - INFO - [etl.transformacion] Fechas de 'price_quote_checkout_date' estandarizadas a YYYY-MM-DD.
+2026-10-05 09:02:49 - INFO - [etl.transformacion] Texto estandarizado en columnas: ['name', 'neighbourhood_cleansed', 'property_type', 'room_type']
+2026-10-05 09:02:50 - INFO - [etl.transformacion] Texto estandarizado en columnas: ['description', 'host_about']
+2026-10-05 09:02:50 - INFO - [etl.transformacion] [Listings] Imputación de nulos: 14315 valores de texto -> 'Sin información', 4276 valores numéricos -> mediana.
+2026-10-05 09:02:50 - INFO - [etl.transformacion] Transformando CALENDAR...
+2026-10-05 09:02:53 - INFO - [etl.transformacion] Fechas de 'date' estandarizadas a YYYY-MM-DD y variables derivadas generadas (anio, mes, dia, trimestre, dia_semana).
+2026-10-05 09:02:54 - INFO - [etl.transformacion] [Calendar] Limpieza de nulos/duplicados: de 7003255 a 7003255 registros (duplicados: 0, filas vacías: 0, nulos en columnas críticas: 0).
+2026-10-05 09:02:59 - INFO - [etl.transformacion] Columnas t/f convertidas a 1/0: ['available']
+2026-10-05 09:02:59 - WARNING - [etl.transformacion] [Calendar] 'maximum_nights': 2188 valores por encima de 1125 limitados a 1125.
+2026-10-05 09:02:59 - INFO - [etl.transformacion] Transformando REVIEWS...
+2026-10-05 09:03:01 - INFO - [etl.transformacion] Fechas de 'date' estandarizadas a YYYY-MM-DD y variables derivadas generadas (anio, mes, dia, trimestre, dia_semana).
+2026-10-05 09:03:01 - INFO - [etl.transformacion] [Reviews] Limpieza de nulos/duplicados: de 527731 a 527731 registros (duplicados: 0, filas vacías: 0, nulos en columnas críticas: 0).
+2026-10-05 09:03:11 - INFO - [etl.transformacion] Texto estandarizado en columnas: ['comments', 'reviewer_name']
+2026-10-05 09:03:11 - INFO - [etl.transformacion] [Reviews] Imputación de nulos: 1 valores de texto -> 'Sin comentario', 0 valores numéricos -> mediana.
+2026-10-05 09:03:12 - INFO - [etl.transformacion] Calendario agrupado por anuncio y mes: 249431 registros resumen.
+2026-10-05 09:03:12 - INFO - [etl.transformacion] --- TRANSFORMACIÓN FINALIZADA: listings=18992, reviews=527731, calendar=7003255, calendar_mensual=249431 registros ---
+2026-10-05 09:03:12 - INFO - [etl.carga] --- INICIANDO PROCESO DE CARGA ---
+2026-10-05 09:03:14 - INFO - [etl.carga] Carga verificada en SQLite: 18992 registros en la tabla 'Listings_Limpio' (coincide con el DataFrame de origen).
+2026-10-05 09:03:17 - INFO - [etl.carga] Carga verificada en SQLite: 527731 registros en la tabla 'Reviews_Limpio' (coincide con el DataFrame de origen).
+2026-10-05 09:03:47 - INFO - [etl.carga] Carga verificada en SQLite: 7003255 registros en la tabla 'Calendar_Limpio' (coincide con el DataFrame de origen).
+2026-10-05 09:03:48 - INFO - [etl.carga] Carga verificada en SQLite: 249431 registros en la tabla 'Calendar_Mensual' (coincide con el DataFrame de origen).
+2026-10-05 09:04:25 - INFO - [etl.carga] Exportación exitosa: 'Listings_Transformado.xlsx' generado (18992 registros, 18993 filas con encabezados, 10.7 MB).
+2026-10-05 09:06:48 - INFO - [etl.carga] Exportación exitosa: 'Reviews_Transformado.xlsx' generado (527731 registros, 527732 filas con encabezados, 62.2 MB).
+2026-10-05 09:07:20 - INFO - [etl.carga] Exportación exitosa: 'Calendar_Mensual_Transformado.xlsx' generado (249431 registros, 249432 filas con encabezados, 6.2 MB).
+2026-10-05 09:07:20 - INFO - [etl.carga] --- CARGA FINALIZADA CON ÉXITO. Base de datos: C:\Users\USUARIO\Desktop\etl_airbnb\output\airbnb_analitica.db ---
+2026-10-05 09:07:20 - INFO - [etl.extraccion] Conexión a MongoDB cerrada.
+2026-10-05 09:07:20 - INFO - [etl.main] === FIN DEL PROCESO ETL (OK) en 328.8 segundos ===
+2026-10-05 09:07:20 - INFO - [etl.main] Log de esta ejecución: C:\Users\USUARIO\Desktop\etl_airbnb\logs\log_20261005_090152.txt
