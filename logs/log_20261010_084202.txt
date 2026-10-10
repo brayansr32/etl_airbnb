@@ -1,0 +1,47 @@
+2026-10-10 08:42:02 - INFO [etl.main] Inicio del proceso ETL Airbnb Bogotá
+2026-10-10 08:42:02 - INFO [etl.extraccion] Conexión a MongoDB (localhost:27017), base de datos 'Airbnb'.
+2026-10-10 08:42:04 - INFO [etl.extraccion] Se extrajeron 19187 registros de la colección 'Listings'.
+2026-10-10 08:42:08 - INFO [etl.extraccion] Se extrajeron 527731 registros de la colección 'Reviews'.
+2026-10-10 08:42:40 - INFO [etl.extraccion] Se extrajeron 7003255 registros de la colección 'Calendar'.
+2026-10-10 08:42:40 - INFO [etl.transformacion] --- INICIANDO TRANSFORMACIÓN ---
+2026-10-10 08:42:40 - INFO [etl.transformacion] Transformando Listings...
+2026-10-10 08:42:41 - WARNING [etl.transformacion] Se eliminaron columnas vacías: ['host_verifications']
+2026-10-10 08:42:41 - INFO [etl.transformacion] Precio 'price' convertido a número
+2026-10-10 08:42:41 - INFO [etl.transformacion] Registros antes de limpiar: 19187, después: 18992. Se eliminaron 0 duplicados, 0 filas vacías y 195 con nulos críticos
+2026-10-10 08:42:41 - WARNING [etl.transformacion] Se descartaron 0 registros por precio inválido
+2026-10-10 08:42:41 - INFO [etl.transformacion] Se marcaron 1410 atípicos en 'price' (fuera de -70,520 a 410,866). No se eliminan, solo se marcan.
+2026-10-10 08:42:41 - WARNING [etl.transformacion] Los valores de 'maximum_nights' se limitaron a un máximo de 1125
+2026-10-10 08:42:41 - INFO [etl.transformacion] Precios categorizados en 'rango_precio'.
+2026-10-10 08:42:41 - INFO [etl.transformacion] Amenidades separadas en columnas booleanas
+2026-10-10 08:42:41 - INFO [etl.transformacion] Columna de baños calculada.
+2026-10-10 08:42:41 - INFO [etl.transformacion] Columnas de t/f convertidas a 1 y 0
+2026-10-10 08:42:41 - INFO [etl.transformacion] Fechas de 'first_review' arregladas y sin horas
+2026-10-10 08:42:41 - INFO [etl.transformacion] Fechas de 'last_review' arregladas y sin horas
+2026-10-10 08:42:41 - INFO [etl.transformacion] Fechas de 'last_scraped' arregladas y sin horas
+2026-10-10 08:42:41 - INFO [etl.transformacion] Fechas de 'calendar_last_scraped' arregladas y sin horas
+2026-10-10 08:42:41 - INFO [etl.transformacion] Se imputaron valores nulos en texto y números.
+2026-10-10 08:42:41 - INFO [etl.transformacion] Textos limpiados.
+2026-10-10 08:42:41 - INFO [etl.transformacion] Transformando Calendar...
+2026-10-10 08:42:46 - INFO [etl.transformacion] Fechas de 'date' arregladas y sin horas
+2026-10-10 08:42:48 - INFO [etl.transformacion] Registros antes de limpiar: 7003255, después: 7003255. Se eliminaron 0 duplicados, 0 filas vacías y 0 con nulos críticos
+2026-10-10 08:42:51 - INFO [etl.transformacion] Columnas de t/f convertidas a 1 y 0
+2026-10-10 08:42:52 - INFO [etl.transformacion] Calendario resumido por meses.
+2026-10-10 08:42:52 - INFO [etl.transformacion] Transformando Reviews...
+2026-10-10 08:42:54 - INFO [etl.transformacion] Fechas de 'date' arregladas y sin horas
+2026-10-10 08:42:54 - INFO [etl.transformacion] Registros antes de limpiar: 527731, después: 527731. Se eliminaron 0 duplicados, 0 filas vacías y 0 con nulos críticos
+2026-10-10 08:42:54 - INFO [etl.transformacion] Se imputaron valores nulos en texto y números.
+2026-10-10 08:43:00 - INFO [etl.transformacion] Textos limpiados.
+2026-10-10 08:43:02 - INFO [etl.transformacion] TRANSFORMACIÓN FINALIZADA
+2026-10-10 08:43:02 - INFO [etl.carga] INICIANDO FASE DE CARGA (SOLO 3 TABLAS)
+2026-10-10 08:43:02 - INFO [etl.carga] Insertando datos en SQLite...
+2026-10-10 08:43:03 - INFO [etl.carga] Carga exitosa en SQLite: 'Listings_Limpio' con 18992 registros.
+2026-10-10 08:43:05 - INFO [etl.carga] Carga exitosa en SQLite: 'Reviews_Limpio' con 527731 registros.
+2026-10-10 08:43:06 - INFO [etl.carga] Carga exitosa en SQLite: 'Calendar_Mensual' con 249431 registros.
+2026-10-10 08:43:06 - INFO [etl.carga] Exportando datos a Excel (XLSX)...
+2026-10-10 08:43:22 - INFO [etl.carga] Exportación exitosa: 'Listings_Transformado.xlsx' guardado (10.6 MB).
+2026-10-10 08:44:47 - INFO [etl.carga] Exportación exitosa: 'Reviews_Transformado.xlsx' guardado (63.7 MB).
+2026-10-10 08:45:17 - INFO [etl.carga] Exportación exitosa: 'Calendar_Mensual_Transformado.xlsx' guardado (6.2 MB).
+2026-10-10 08:45:17 - INFO [etl.carga] CARGA FINALIZADA. Base de datos guardada en: output\airbnb_analitica.db
+2026-10-10 08:45:17 - INFO [etl.extraccion] Conexión a MongoDB cerrada.
+2026-10-10 08:45:17 - INFO [etl.main] Fin del proceso. Duración: 194.3 segundos
+2026-10-10 08:45:17 - INFO [etl.main] Revisa el detalle en el log: logs\log_20261010_084202.txt

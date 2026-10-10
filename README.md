@@ -95,11 +95,11 @@ Reviews  527731
 Con el entorno virtual activado, desde la **raíz del proyecto**:
 
 ```bash
-python src/main.py                  # ETL completo (~5 minutos con los datos completos)
+python src/main.py                  # ETL completo (~3 minutos con los datos completos)
 python src/main.py --muestra 2000   # prueba rápida con 2000 registros por colección
 ```
 
-Opciones: `--db` (nombre de la base, por defecto `Airbnb`), `--host` y `--puerto`.
+> Ejecutar con `--muestra` sobrescribe los archivos de `output/
 
 Cada clase también puede ejecutarse por separado (`python src/extraccion.py`, `python src/transformacion.py`,
 `python src/carga.py`) y usarse desde otro script:
@@ -130,13 +130,14 @@ Al terminar, en `output/`:
 
 | Archivo | Contenido |
 |---|---|
-| `airbnb_analitica.db` | Base SQLite con las tablas `Listings_Limpio`, `Reviews_Limpio`, `Calendar_Limpio` y `Calendar_Mensual` |
+| `airbnb_analitica.db` | Base SQLite con las tablas `Listings_Limpio`, `Reviews_Limpio` y `Calendar_Mensual` |
 | `Listings_Transformado.xlsx` | Anuncios limpios |
 | `Reviews_Transformado.xlsx` | Reseñas limpias |
 | `Calendar_Mensual_Transformado.xlsx` | Resumen mensual del calendario por anuncio |
 
-`Calendar_Limpio` tiene más de 7 millones de filas y no cabe en Excel, por eso en XLSX se exporta su resumen
-mensual (días disponibles y ocupados y porcentaje de ocupación por anuncio y mes). Consulta de ejemplo:
+`Calendar` tiene más de 7 millones de filas (un registro por anuncio y día) y no cabe en Excel, por eso en la base
+y en XLSX se guarda su resumen mensual (días disponibles y ocupados y porcentaje de ocupación por anuncio y mes).
+Consulta de ejemplo:
 
 ```bash
 sqlite3 output/airbnb_analitica.db "SELECT rango_precio, COUNT(*) FROM Listings_Limpio GROUP BY rango_precio;"
@@ -147,32 +148,29 @@ sqlite3 output/airbnb_analitica.db "SELECT rango_precio, COUNT(*) FROM Listings_
 Extracto del log de una ejecución real (`logs/log_YYYYMMDD_HHMMSS.txt`):
 
 ```
-2026-10-05 09:01:52 - INFO - [etl.main] === INICIO DEL PROCESO ETL AIRBNB BOGOTÁ ===
-2026-10-05 09:01:52 - INFO - [etl.extraccion] Conexión exitosa a MongoDB (localhost:27017), base de datos 'Airbnb'.
-2026-10-05 09:01:53 - INFO - [etl.extraccion] Extracción exitosa: 19187 registros y 78 columnas extraídos de la colección 'Listings'.
-2026-10-05 09:02:47 - INFO - [etl.extraccion] Extracción exitosa: 7003255 registros y 5 columnas extraídos de la colección 'Calendar'.
-2026-10-05 09:02:48 - WARNING - [etl.transformacion] [Listings] Columnas 100% vacías eliminadas: ['host_verifications']
-2026-10-05 09:02:48 - INFO - [etl.transformacion] [Listings] Limpieza de nulos/duplicados: de 19187 a 18992 registros (duplicados: 0, filas vacías: 0, nulos en columnas críticas: 195).
-2026-10-05 09:02:48 - INFO - [etl.transformacion] Atípicos en 'price': 1410 registros fuera de [-70,519.56, 410,865.94] (marcados en 'precio_atipico', no eliminados).
-2026-10-05 09:02:48 - WARNING - [etl.transformacion] [Listings] 'maximum_nights': 6 valores por encima de 1125 limitados a 1125.
-2026-10-05 09:02:48 - INFO - [etl.transformacion] Precios categorizados por cuartiles en 'rango_precio'. Cortes: [19181.11, 110000.0, 161460.0, 230346.38, 448176567.0]
-2026-10-05 09:03:12 - INFO - [etl.transformacion] --- TRANSFORMACIÓN FINALIZADA: listings=18992, reviews=527731, calendar=7003255, calendar_mensual=249431 registros ---
-2026-10-05 09:03:14 - INFO - [etl.carga] Carga verificada en SQLite: 18992 registros en la tabla 'Listings_Limpio' (coincide con el DataFrame de origen).
-2026-10-05 09:06:48 - INFO - [etl.carga] Exportación exitosa: 'Reviews_Transformado.xlsx' generado (527731 registros, 527732 filas con encabezados, 62.2 MB).
-2026-10-05 09:07:20 - INFO - [etl.carga] --- CARGA FINALIZADA CON ÉXITO. Base de datos: output/airbnb_analitica.db ---
-2026-10-05 09:07:20 - INFO - [etl.main] === FIN DEL PROCESO ETL (OK) en 328.8 segundos ===
+2026-10-10 08:42:02 - INFO [etl.main] Inicio del proceso ETL Airbnb Bogotá
+2026-10-10 08:42:02 - INFO [etl.extraccion] Conexión a MongoDB (localhost:27017), base de datos 'Airbnb'.
+2026-10-10 08:42:04 - INFO [etl.extraccion] Se extrajeron 19187 registros de la colección 'Listings'.
+2026-10-10 08:42:40 - INFO [etl.extraccion] Se extrajeron 7003255 registros de la colección 'Calendar'.
+2026-10-10 08:42:41 - WARNING [etl.transformacion] Se eliminaron columnas vacías: ['host_verifications']
+2026-10-10 08:42:41 - INFO [etl.transformacion] Registros antes de limpiar: 19187, después: 18992. Se eliminaron 0 duplicados, 0 filas vacías y 195 con nulos críticos
+2026-10-10 08:42:41 - INFO [etl.transformacion] Se marcaron 1410 atípicos en 'price' (fuera de -70,520 a 410,866). No se eliminan, solo se marcan.
+2026-10-10 08:42:41 - WARNING [etl.transformacion] Los valores de 'maximum_nights' se limitaron a un máximo de 1125
+2026-10-10 08:42:41 - INFO [etl.transformacion] Precios categorizados en 'rango_precio'.
+2026-10-10 08:43:02 - INFO [etl.transformacion] TRANSFORMACIÓN FINALIZADA
+2026-10-10 08:43:03 - INFO [etl.carga] Carga exitosa en SQLite: 'Listings_Limpio' con 18992 registros.
+2026-10-10 08:43:05 - INFO [etl.carga] Carga exitosa en SQLite: 'Reviews_Limpio' con 527731 registros.
+2026-10-10 08:43:06 - INFO [etl.carga] Carga exitosa en SQLite: 'Calendar_Mensual' con 249431 registros.
+2026-10-10 08:44:47 - INFO [etl.carga] Exportación exitosa: 'Reviews_Transformado.xlsx' guardado (63.7 MB).
+2026-10-10 08:45:17 - INFO [etl.carga] CARGA FINALIZADA. Base de datos guardada en: output\airbnb_analitica.db
+2026-10-10 08:45:17 - INFO [etl.main] Fin del proceso. Duración: 194.3 segundos
 ```
 
 ## Integrantes y responsabilidades
 
-> **PENDIENTE (completar por el equipo):** reemplazar con los datos reales.
-
-| Integrante | Responsabilidades |
-|---|---|
-| _Nombre 1_ | _p. ej. Extracción (`extraccion.py`) y carga de datos en MongoDB_ |
-| _Nombre 2_ | _p. ej. Análisis exploratorio (notebook)_ |
-| _Nombre 3_ | _p. ej. Transformación (`transformacion.py`)_ |
-| _Nombre 4_ | _p. ej. Carga (`carga.py`), logs e informe final_ |
+El grupo está conformado por Julián Clavijo Restrepo, Evelyn Muñetones Alvarez, Christian Camilo Pereira Berte y
+Brayan Antonio Sanabria Ramirez. Christian, Julián y Brayan se encargaron de los procesos de extracción, transformación y
+carga, y del notebook de exploración. Evelyn se encargó del informe y de las validaciones.
 
 ## Notas
 

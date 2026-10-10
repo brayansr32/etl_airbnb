@@ -48,18 +48,22 @@ class Transformacion:
         n_criticos = antes_criticos - len(df)
 
         self.logger.info(
-            f"Se eliminaron {n_duplicados} duplicados, {n_filas_vacias} filas vacías, "
-            f"y {n_criticos} con nulos críticos. Quedan {len(df)} registros"
+            f"Registros antes de limpiar: {registros_antes}, después: {len(df)}. "
+            f"Se eliminaron {n_duplicados} duplicados, {n_filas_vacias} filas vacías "
+            f"y {n_criticos} con nulos críticos"
         )
         return df
 
 
     def eliminar_columnas_vacias(self, df):
-        """Borramos columnas que están 100% vacías porque no sirven para el análisis"""
         if df is None or df.empty:
             return df
-        
-        vacias = [col for col in df.columns if df[col].isna().all()]
+
+        vacias = []
+        for col in df.columns:
+            solo_none = df[col].dtype == "object" or pd.api.types.is_string_dtype(df[col])
+            if df[col].isna().all() or (solo_none and (df[col].astype(str) == "None").all()):
+                vacias.append(col)
         if vacias:
             df = df.drop(columns=vacias)
             self.logger.warning(f"Se eliminaron columnas vacías: {vacias}")
@@ -120,7 +124,10 @@ class Transformacion:
         limite_inf, limite_sup = q1 - factor * iqr, q3 + factor * iqr
         
         df[nombre_columna] = ((serie < limite_inf) | (serie > limite_sup)).astype("int8")
-        self.logger.info(f"Se marcaron atípicos en la columna '{columna}'.")
+        self.logger.info(
+            f"Se marcaron {int(df[nombre_columna].sum())} atípicos en '{columna}' "
+            f"(fuera de {limite_inf:,.0f} a {limite_sup:,.0f}). No se eliminan, solo se marcan."
+        )
         return df
 
 
@@ -162,7 +169,8 @@ class Transformacion:
                 df["mes"] = fechas_temp.dt.month
                 df["dia"] = fechas_temp.dt.day
                 df["trimestre"] = fechas_temp.dt.quarter
-                
+                df["dia_semana"] = fechas_temp.dt.dayofweek  # 0 = lunes, 6 = domingo
+
             # 3. Guardamos la columna definitiva usando strftime para que quede solo como texto YYYY-MM-DD
             df[columna] = fechas_temp.dt.strftime('%Y-%m-%d')
             
@@ -264,22 +272,30 @@ class Transformacion:
         listings = self.categorizar_precios(listings, "price")
         listings = self.expandir_amenidades(listings, "amenities")
 
-        # Convertimos las listas a texto plano para que SQLite y Excel no tengan problemas
-        for col in ["amenities", "host_verifications"]:
-            if col in listings.columns:
-                listings[col] = listings[col].apply(
-                    lambda x: ", ".join(x) if isinstance(x, list) else str(x)
-                )
+        # Convertimos la lista de amenities a texto plano para que SQLite y Excel no tengan problemas
+        if "amenities" in listings.columns:
+            listings["amenities"] = listings["amenities"].apply(
+                lambda x: ", ".join(x) if isinstance(x, list) else str(x)
+            )
 
         # Eliminamos price_quote_raw porque es un diccionario anidado que da error en SQLite
         if "price_quote_raw" in listings.columns:
             listings = listings.drop(columns=["price_quote_raw"])
 
         listings = self.extraer_banos(listings, "bathrooms_text", "banos")
-        listings = self.normalizar_booleanos(listings, ["host_is_superhost", "instant_bookable"])
-        listings = self.transformar_fechas(listings, "host_since", derivar=False)
+        listings = self.normalizar_booleanos(
+            listings, ["host_is_superhost", "host_has_profile_pic", "host_identity_verified", "has_availability"]
+        )
+        for col in ["host_since", "first_review", "last_review", "last_scraped", "calendar_last_scraped"]:
+            listings = self.transformar_fechas(listings, col, derivar=False)
+
+        # Primero rellenamos los nulos y después limpiamos el texto, así un nulo no se vuelve el texto "nan"
+        listings = self.imputar_nulos(
+            listings,
+            columnas_texto=["description", "host_about", "host_location", "license"],
+            columnas_mediana=["bedrooms", "beds", "banos"],
+        )
         listings = self.estandarizar_texto(listings, ["description"], quitar_html=True)
-        listings = self.imputar_nulos(listings, columnas_mediana=["bedrooms", "beds", "banos"])
 
         # CALENDAR
         self.logger.info("Transformando Calendar...")
@@ -297,8 +313,8 @@ class Transformacion:
         reviews = self.eliminar_columnas_vacias(reviews)
         reviews = self.transformar_fechas(reviews, "date")
         reviews = self.limpiar_nulos_duplicados(reviews, ["id", "listing_id", "date"], ["id"])
-        reviews = self.estandarizar_texto(reviews, ["comments"], quitar_html=True)
         reviews = self.imputar_nulos(reviews, columnas_texto=["comments"])
+        reviews = self.estandarizar_texto(reviews, ["comments"], quitar_html=True)
 
         # Convertir todos los IDs inmensos a texto para SQLite/Excel
         if "id" in listings.columns: listings["id"] = listings["id"].astype(str)

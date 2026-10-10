@@ -1,4 +1,5 @@
 import sqlite3
+import pandas as pd
 from logger_config import RAIZ_PROYECTO, get_logger
 
 
@@ -65,8 +66,12 @@ class Carga:
 
         ruta = self.carpeta_salida / f"{nombre_archivo}.xlsx"
         try:
-            df.to_excel(ruta, index=False)
-            
+            # strings_to_urls=False porque Excel solo admite 65.530 hipervínculos por hoja y Listings trae
+            # muchas URLs (fotos, perfil del anfitrión); así quedan como texto normal
+            with pd.ExcelWriter(ruta, engine="xlsxwriter",
+                                engine_kwargs={"options": {"strings_to_urls": False}}) as escritor:
+                df.to_excel(escritor, index=False)
+
             if ruta.exists() and ruta.stat().st_size > 0:
                 peso_mb = ruta.stat().st_size / (1024 * 1024)
                 self.logger.info(f"Exportación exitosa: '{ruta.name}' guardado ({peso_mb:.1f} MB).")
@@ -107,7 +112,7 @@ class Carga:
         for nombre, df in tablas_excel.items():
             self.exportar_excel(df, nombre)
 
-        self.logger.info(f"CARGA FINALIZADA. Base de datos guardada en: {self.ruta_db}")
+        self.logger.info(f"CARGA FINALIZADA. Base de datos guardada en: {self.ruta_db.relative_to(RAIZ_PROYECTO)}")
         return estado_sql
 
 
