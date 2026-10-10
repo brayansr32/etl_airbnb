@@ -186,6 +186,8 @@ carga, y del notebook de exploración. Evelyn se encargó del informe y de las v
 
 ## Referencias
 
-- Inside Airbnb. *Get the Data — Bogotá, Colombia*. <https://insideairbnb.com/get-the-data/>
-- Documentación de [pandas](https://pandas.pydata.org/docs/), [PyMongo](https://pymongo.readthedocs.io/)
-  y [SQLite](https://www.sqlite.org/docs.html).
+- Datos: Inside Airbnb, conjuntos de datos de Bogotá, Colombia (listings, reviews y calendar).
+- Documentación de pandas, PyMongo y SQLite, consultada para el manejo de DataFrames, la conexión a MongoDB
+  y la carga en SQLite.
+- Guía del taller evaluativo 2 de Inteligencia de Negocios: Proceso ETL con los datasets de Airbnb Bogotá.
+- Se utilizó la IA Geminis como apoyo en el desarrollo del código, el análisis y la redacción de este informe. Revisamos y validamos los resultados.
