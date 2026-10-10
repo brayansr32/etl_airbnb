@@ -75,8 +75,13 @@ datasets a una base de datos llamada **`Airbnb`** con tres colecciones:
 | `reviews.csv.gz` | `Reviews` |
 | `calendar.csv.gz` | `Calendar` |
 
-> **PENDIENTE (completar por el equipo):** indicar aquí cómo se importaron los archivos
-> (MongoDB Compass → *Add Data → Import File*, `mongoimport` o un script propio).
+Los archivos se importaron de forma manual con **MongoDB Compass**:
+
+1. Descomprimir los archivos `.csv.gz` para obtener `listings.csv`, `reviews.csv` y `calendar.csv`.
+2. En Compass, conectarse a `mongodb://localhost:27017` y crear la base de datos `Airbnb` con una colección
+   llamada `Listings`.
+3. Dentro de la colección, usar *Add Data → Import File*, elegir `listings.csv` (formato CSV) e importar.
+4. Repetir el paso 3 en dos colecciones nuevas: `Reviews` con `reviews.csv` y `Calendar` con `calendar.csv`.
 
 Validar que la carga quedó bien (cantidades esperadas con el dataset usado en este proyecto):
 
